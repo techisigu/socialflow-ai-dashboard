@@ -13,6 +13,7 @@ const MaterialIcon = ({ name }: { name: string }) => (
 const navItems: NavItem[] = [
   { id: View.DASHBOARD, label: 'Dashboard', icon: <MaterialIcon name="dashboard" /> },
   { id: View.ANALYTICS, label: 'Analytics', icon: <MaterialIcon name="bar_chart" /> },
+  { id: View.EXECUTIVE_REPORTS, label: 'Executive Reports', icon: <MaterialIcon name="description" /> },
   { id: View.CALENDAR, label: 'Calendar', icon: <MaterialIcon name="calendar_today" /> },
   { id: View.CREATE_POST, label: 'Create Post', icon: <MaterialIcon name="edit_square" /> },
   { id: View.MEDIA_LIBRARY, label: 'Media', icon: <MaterialIcon name="photo_library" /> },
