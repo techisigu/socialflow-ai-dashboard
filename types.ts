@@ -1,6 +1,7 @@
 export enum View {
   DASHBOARD = 'DASHBOARD',
   ANALYTICS = 'ANALYTICS',
+  WEALTH_ANALYTICS = 'WEALTH_ANALYTICS',
   CALENDAR = 'CALENDAR',
   CREATE_POST = 'CREATE_POST',
   MEDIA_LIBRARY = 'MEDIA_LIBRARY',
@@ -78,4 +79,56 @@ export interface Transaction {
   relatedTransactions?: string[];
   createdAt: Date;
   data?: any;
+}
+
+// Wealth Analytics Types
+export interface WalletData {
+  address: string;
+  balance: number;
+  tokens: TokenHolding[];
+  firstSeen: Date;
+  lastActive: Date;
+  transactionCount: number;
+  category: 'whale' | 'dolphin' | 'fish' | 'shrimp';
+}
+
+export interface TokenHolding {
+  symbol: string;
+  amount: number;
+  value: number;
+  percentOfPortfolio: number;
+}
+
+export interface WealthSnapshot {
+  timestamp: Date;
+  totalValue: number;
+  walletCount: number;
+  averageValue: number;
+  medianValue: number;
+  topHolders: WalletData[];
+}
+
+export interface WealthTrend {
+  period: string;
+  totalValue: number;
+  change: number;
+  changePercent: number;
+  newWallets: number;
+  activeWallets: number;
+}
+
+export interface WealthSegment {
+  category: string;
+  count: number;
+  totalValue: number;
+  averageValue: number;
+  percentage: number;
+}
+
+export interface WealthMigration {
+  from: string;
+  to: string;
+  value: number;
+  walletCount: number;
+  timestamp: Date;
 }
