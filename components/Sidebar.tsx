@@ -17,6 +17,7 @@ const navItems: NavItem[] = [
   { id: View.CREATE_POST, label: 'Create Post', icon: <MaterialIcon name="edit_square" /> },
   { id: View.MEDIA_LIBRARY, label: 'Media', icon: <MaterialIcon name="photo_library" /> },
   { id: View.INBOX, label: 'Inbox', icon: <MaterialIcon name="inbox" /> },
+  { id: View.STAGING_DOCK, label: 'Staging Dock', icon: <MaterialIcon name="inventory_2" /> },
   { id: View.SETTINGS, label: 'Settings', icon: <MaterialIcon name="settings" /> },
 ];
 
