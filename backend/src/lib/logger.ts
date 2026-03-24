@@ -1,4 +1,5 @@
 import winston from 'winston';
+import { getRequestId } from '../middleware/requestId';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -10,9 +11,10 @@ const winstonLogger = winston.createLogger({
     : winston.format.combine(
       winston.format.colorize(),
       winston.format.timestamp(),
-      winston.format.printf(({ timestamp, level, message, scope, ...meta }) => {
+      winston.format.printf(({ timestamp, level, message, scope, requestId, ...meta }) => {
+        const reqIdStr = requestId ? ` [${requestId}]` : '';
         const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
-        return `${timestamp} [${scope || 'app'}] ${level}: ${message}${metaStr}`;
+        return `${timestamp} [${scope || 'app'}]${reqIdStr} ${level}: ${message}${metaStr}`;
       })
     ),
   transports: [
@@ -32,16 +34,23 @@ export interface Logger {
   error: (message: string, metadata?: unknown) => void;
 }
 
+/**
+ * Create a context-aware logger that automatically includes request ID
+ * @param scope - The scope/module name for the logger
+ */
 export const createLogger = (scope: string): Logger => {
   return {
     info: (message, metadata) => {
-      winstonLogger.info(message, { scope, ...metadata });
+      const requestId = getRequestId();
+      winstonLogger.info(message, { scope, requestId, ...metadata });
     },
     warn: (message, metadata) => {
-      winstonLogger.warn(message, { scope, ...metadata });
+      const requestId = getRequestId();
+      winstonLogger.warn(message, { scope, requestId, ...metadata });
     },
     error: (message, metadata) => {
-      winstonLogger.error(message, { scope, ...metadata });
+      const requestId = getRequestId();
+      winstonLogger.error(message, { scope, requestId, ...metadata });
     },
   };
 };
