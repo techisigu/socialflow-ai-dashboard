@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { UserStore } from '../models/User';
 import { auditLogger } from '../services/AuditLogger';
+import { PasswordHistoryService } from '../services/PasswordHistoryService';
+import { prisma } from '../lib/prisma';
 
 const SALT_ROUNDS = 12;
 
@@ -56,12 +58,15 @@ export async function login(req: Request, res: Response): Promise<void> {
     return;
   }
 
+  // Check if password rotation is required
+  const rotationRequired = await PasswordHistoryService.isRotationRequired(user.id);
+
   const accessToken = signAccess(user.id);
   const refreshToken = signRefresh(user.id);
   UserStore.update(user.id, { refreshTokens: [...user.refreshTokens, refreshToken] });
 
   auditLogger.log({ actorId: user.id, action: 'auth:login', ip: req.ip, userAgent: req.headers['user-agent'] });
-  res.json({ accessToken, refreshToken });
+  res.json({ accessToken, refreshToken, passwordRotationRequired: rotationRequired });
 }
 
 export function refresh(req: Request, res: Response): void {
@@ -110,4 +115,39 @@ export function logout(req: Request, res: Response): void {
   }
 
   res.status(204).send();
+}
+
+export async function changePassword(req: Request, res: Response): Promise<void> {
+  const { currentPassword, newPassword } = req.body as { currentPassword: string; newPassword: string };
+  const userId = (req as any).user?.id;
+
+  if (!userId) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    res.status(404).json({ message: 'User not found' });
+    return;
+  }
+
+  // Verify current password
+  if (!(await bcrypt.compare(currentPassword, user.passwordHash))) {
+    res.status(401).json({ message: 'Current password is incorrect' });
+    return;
+  }
+
+  // Check if new password was recently used
+  if (await PasswordHistoryService.isPasswordReused(userId, newPassword)) {
+    res.status(400).json({ message: 'Cannot reuse one of your last 5 passwords' });
+    return;
+  }
+
+  // Hash and record the new password
+  const newPasswordHash = await PasswordHistoryService.hashPassword(newPassword);
+  await PasswordHistoryService.recordPasswordChange(userId, newPasswordHash);
+
+  auditLogger.log({ actorId: userId, action: 'auth:change-password', ip: req.ip, userAgent: req.headers['user-agent'] });
+  res.json({ message: 'Password changed successfully' });
 }

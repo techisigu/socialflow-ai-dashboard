@@ -7,19 +7,32 @@ datasource db {
 }
 
 model User {
-  id            String               @id @default(uuid())
-  email         String               @unique
-  passwordHash  String
-  refreshTokens String[]
-  role          String               @default("user")
-  listings      Listing[]            @relation("MentorListings")
-  createdAt     DateTime             @default(now())
-  deletedAt     DateTime?
-  memberships   OrganizationMember[]
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  passwordHash        String
+  lastPasswordChange  DateTime             @default(now())
+  refreshTokens       String[]
+  role                String               @default("user")
+  listings            Listing[]            @relation("MentorListings")
+  passwordHistory     PasswordHistory[]
+  createdAt           DateTime             @default(now())
+  deletedAt           DateTime?
+  memberships         OrganizationMember[]
 
   @@index([email])
   @@index([createdAt])
   @@index([deletedAt])
+}
+
+model PasswordHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hash      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Organization {
