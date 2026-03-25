@@ -108,6 +108,17 @@ export const CIRCUIT_CONFIGS = {
     volumeThreshold: 3,
     name: 'youtube-service',
   } as CircuitBreakerConfig,
+
+  // Facebook Graph API
+  facebook: {
+    timeout: 15000,              // 15 seconds
+    errorThresholdPercentage: 50,
+    resetTimeout: 60000,         // 1 minute cooldown
+    rollingCountTimeout: 20000,
+    rollingCountBuckets: 10,
+    volumeThreshold: 3,
+    name: 'facebook-service',
+  } as CircuitBreakerConfig,
 };
 
 /**
@@ -137,5 +148,9 @@ export const FALLBACK_STRATEGIES = {
   price: {
     enabled: true,
     message: 'Price service unavailable. Using cached prices.',
+  },
+  facebook: {
+    enabled: false,
+    message: 'Facebook API unavailable. Please try again later.',
   },
 };
