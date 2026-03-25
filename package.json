@@ -18,7 +18,8 @@
     "test:ci": "jest --coverage --ci --maxWorkers=2",
     "prepare": "husky install",
     "lint": "eslint .",
-    "start:traced": "node -r ./dist/tracing.js dist/index.js"
+    "start:traced": "node -r ./dist/tracing.js dist/index.js",
+    "generate-client": "openapi-typescript-codegen --input ./backend/openapi.yaml --output ./src/api --client fetch --useOptions --useUnionTypes"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -63,7 +64,8 @@
     "typescript": "^6.0.2",
     "vite": "^5.0.8",
     "vitest": "^1.1.4",
-    "wait-on": "^7.2.0"
+    "wait-on": "^7.2.0",
+    "openapi-typescript-codegen": "^0.29.0"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
